@@ -1,0 +1,43 @@
+body {
+    text-align: center;
+}
+/*
+*游戏结束画面的样式
+*/
+#again{
+  width: 506px;
+  height: 542px;
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  margin-left: -253px;
+  background: rgba(0, 0, 0, 0.5);
+}
+#again.off{
+  display: none;
+}
+#agaim.on{
+  display: block;
+}
+#again img{
+  margin-top: 40px;
+}
+#again p{
+  color: white;
+}
+#reset{
+  margin-top: 20px;
+  padding:10px;
+}
+/*
+*分数统计行的样式
+*/
+#count{
+  width: 506px;
+  height: 30px;
+  position: fixed;
+  top: 36px;
+  left: 50%;
+  margin-left: -253px;
+  text-align: left;
+}
