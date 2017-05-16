@@ -1,7 +1,8 @@
 // 这是我们的玩家要躲避的敌人
 var Enemy = function(x,y,v) {
-    // 设置敌人的 x坐标、 y坐标、移动速度
+    // 设置敌人的 x坐标、 y坐标、移动速度;并记录初始启动的 X坐标位置
     this.x = x;
+    this.start = x;
     this.y = y;
     this.speed = v;
     // 敌人的图片或者雪碧图，用一个我们提供的工具函数来轻松的加载文件
@@ -14,6 +15,12 @@ Enemy.prototype.update = function(dt) {
     // 你应该给每一次的移动都乘以 dt 参数，以此来保证游戏在所有的电脑上
     // 都是以同样的速度运行的
     this.x += this.speed*dt;
+    // 当敌人移动至屏幕外侧后，回到初始 X位置，并设置新的 Y坐标和移动速度
+    if(this.x > 600){
+        this.x = this.start;
+        this.y = enemyAttr().y;
+        this.speed = enemyAttr().speed;
+    }
 };
 
 // 此为游戏必须的函数，用来在屏幕上画出敌人，
@@ -34,6 +41,8 @@ var Player = function(x,y){
     this.sprite = 'images/char-boy.png';
 };
 Player.prototype.update = function(){
+    //调用碰撞检测
+    checkCollisions();
     /* 玩家移动到河里时 Y坐标的值为 -9
      * 这里使用了计时事件，因为直接调用 victory()会导致玩家抵达河里的动画无法
      * 展示就被复位到初试坐标。而 victory()被延迟调用的过程，engine.js会不断
@@ -69,28 +78,38 @@ Player.prototype.handleInput = function(position){
 
 
 // 现在实例化所有对象
+//定义一些常量,玩家和敌人的图标像素宽度，玩家起始位置
+var   PIC_WIDTH = 101,
+      PIC_HEIGHT = 83,
+      PLAYER_START_X = 200,
+      PLAYER_START_Y = 406;
 // 实例化敌人对象时随机产生敌人的初始位置和移动速度
 var enemyAttr = function(){
     var randomY = Math.ceil(Math.random()*3);
     var randomSpeed = Math.ceil(Math.random()*3);
-    var y = randomY*83 - 25;
+    var y = randomY*PIC_HEIGHT - 25;
     var speed = randomSpeed*80;
     return {y:y,speed:speed};
 };
 // 把所有敌人的对象都放进一个叫 allEnemies 的数组里面
 var allEnemies = [];
-// 采用计时事件循环不断产生敌人
+// 敌人的 Y坐标和移动速度随机产生，X坐标以一定间距依次设置
+// 敌人对象可以重复利用，所以当实例化 10个敌人后停止生产新的敌人
+var enemyX = -120;
 var produceEnemy = function(){
     var y = enemyAttr().y;
     var speed = enemyAttr().speed;
-    var enemy = new Enemy(-100,y,speed);
+    var enemy = new Enemy(enemyX,y,speed);
     allEnemies.push(enemy);
 };
-produceEnemy();
-setInterval(function(){produceEnemy();},2000);
+while(enemyX>=-1200){
+    produceEnemy();
+    enemyX -= 120;
+}
+
 
 // 把玩家对象放进一个叫 player 的变量里面
-var player = new Player(200,406);
+var player = new Player(PLAYER_START_X,PLAYER_START_Y);
 
 // 这段代码监听游戏玩家的键盘点击事件并且代表将按键的关键数字送到 Play.handleInput()
 // 方法里面。你不需要再更改这段代码了。
@@ -106,12 +125,12 @@ document.addEventListener('keyup', function(e) {
 });
 
 // 碰撞检测。玩家和敌人在同一行时才可能发生碰撞，此时 y坐标相差 16
-// X坐标差值小于了图标宽度 101的时候，认为玩家和敌人碰撞了
+// X坐标差值小于了图标宽度 PIC_WIDTH 的时候，认为玩家和敌人碰撞了
 var checkCollisions = function(main){
     for(var i=0;i<allEnemies.length;i++){
         var distanceX = Math.abs(player.x - allEnemies[i].x);
         var distanceY = Math.abs(player.y - allEnemies[i].y);
-        if(distanceX < 101 && distanceY === 16){
+        if(distanceX < PIC_WIDTH && distanceY === 16){
             //游戏结束，向 result()传参 ‘on’ 以显示游戏结束的画面
             result('on');
             //游戏结束，禁止键盘事件
@@ -136,8 +155,8 @@ var victory = function(){
     // 并把胜利判断标识  player.success 恢复默认值
     player.count += 1;
     count.innerHTML = 'score:'+player.count;
-    player.x = 200;
-    player.y = 406;
+    player.x = PLAYER_START_X;
+    player.y = PLAYER_START_Y;
     player.success = false;
 };
 // 在游戏结果画面点击‘再玩一次’调用此函数重新开始游戏，分数归零
@@ -146,6 +165,6 @@ var playAgain = function(){
   player.count = 0;
   count.innerHTML = 'score:0';
   stop = false;
-  player.x = 200;
-  player.y = 406;
+  player.x = PLAYER_START_X;
+  player.y = PLAYER_START_Y;
 };
