@@ -12,7 +12,7 @@ var Enemy = function(x,y,v) {
 // 此为游戏必须的函数，用来更新敌人的位置
 // 参数: dt ，表示时间间隙
 Enemy.prototype.update = function(dt) {
-    // 你应该给每一次的移动都乘以 dt 参数，以此来保证游戏在所有的电脑上
+    // 给每一次的移动都乘以 dt 参数，以此来保证游戏在所有的电脑上
     // 都是以同样的速度运行的
     this.x += this.speed*dt;
     // 当敌人移动至屏幕外侧后，回到初始 X位置，并设置新的 Y坐标和移动速度
@@ -28,7 +28,7 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-// 现在实现你自己的玩家类
+// 现在实现玩家类
 // 这个类需要一个 update() 函数， render() 函数和一个 handleInput()函数
 var Player = function(x,y){
     // 设置玩家的初试坐标位置，设置游戏开始时的分数为 0
@@ -112,7 +112,7 @@ while(enemyX>=-1200){
 var player = new Player(PLAYER_START_X,PLAYER_START_Y);
 
 // 这段代码监听游戏玩家的键盘点击事件并且代表将按键的关键数字送到 Play.handleInput()
-// 方法里面。你不需要再更改这段代码了。
+// 方法里面。
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
